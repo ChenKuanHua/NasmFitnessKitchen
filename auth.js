@@ -55,11 +55,12 @@ class AuthManager {
             if (window.app) {
                 await window.app.loadAppData();
                 
-                // 檢查是否為管理員
+                // 檢查是否為管理員 (需 Email 相符且 名稱 欄位設定為 管理員)
                 const admins = window.app.state.admins;
                 this.isAdmin = admins.some(a => 
                     a.Email && this.userData.email && 
-                    a.Email.toLowerCase() === this.userData.email.toLowerCase()
+                    a.Email.toLowerCase() === this.userData.email.toLowerCase() &&
+                    a['名稱'] === '管理員'
                 );
             }
             

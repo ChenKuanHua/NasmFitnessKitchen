@@ -138,6 +138,7 @@ body { font-family: "Inter", "Noto Sans TC", sans-serif; background-color: var(-
 /* 推薦與警告標示 */
 .star-recommended { color: var(--secondary-color); font-size: 14px; }
 .medical-warning { margin-top: 6px; padding: 6px; background: var(--danger-light); color: var(--danger-color); border-radius: 4px; font-size: 12px; display: flex; align-items: flex-start; gap: 4px; }
+.workout-menu .medical-warning { display: none !important; } /* 右側菜單隱藏警告，保持乾淨 */
 .add-to-menu-btn { background: none; border: 1px solid var(--primary-color); color: var(--primary-color); border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; margin-left: 8px; }
 .add-to-menu-btn:hover { background: var(--primary-color); color: white; }
 
@@ -190,6 +191,9 @@ body { font-family: "Inter", "Noto Sans TC", sans-serif; background-color: var(-
 .workout-menu .exercise-card .add-to-menu-btn { display: none; }
 .workout-menu .exercise-card .remove-btn { position: static; padding: 4px 8px; font-size: 12px; }
 
+/* 底部按鈕區排版調整 */
+.submit-menu-section { padding-bottom: 40px; }
+
 /* 動作變量顯示區 (右側) */
 .workout-menu .exercise-variables { 
     width: 100%; 
@@ -227,6 +231,7 @@ body { font-family: "Inter", "Noto Sans TC", sans-serif; background-color: var(-
 @media (max-width: 900px) {
     .workspace { grid-template-columns: 1fr; }
     .config-summary-bar { flex-direction: column; }
+    .exercise-pool { position: static !important; height: auto !important; max-height: 45vh !important; margin-bottom: 16px; }
 }
 
 /* --- 左側動作庫 --- */

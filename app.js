@@ -454,7 +454,13 @@ class App {
         addedCard.appendChild(removeBtn);
 
         // Vars
-        const varsObj = this.state.opt.find(o => o['OPT階段'] === this.getPhaseFullLabel(phase) && o['訓練元素'] === expectedElement);
+        // 使用卡片的實際來源標籤 (例如：1.暖身 - 靜態伸展) 尋找變量，若找不到則退回尋找大項目 (1.暖身)
+        let exactMatch = this.state.opt.find(o => o['OPT階段'] === this.getPhaseFullLabel(phase) && o['訓練元素'] === exData['訓練元素']);
+        if (!exactMatch && addedCard.getAttribute('data-source-group')) {
+             exactMatch = this.state.opt.find(o => o['OPT階段'] === this.getPhaseFullLabel(phase) && o['訓練元素'] === addedCard.getAttribute('data-source-group'));
+        }
+        const varsObj = exactMatch || this.state.opt.find(o => o['OPT階段'] === this.getPhaseFullLabel(phase) && o['訓練元素'] === expectedElement);
+        
         if (varsObj) {
             addedCard.querySelector('.exercise-info').insertAdjacentHTML('beforeend', `<div class="exercise-variables">
                 <div class="var-item">組數: <strong>${varsObj['組數']}</strong> </div>

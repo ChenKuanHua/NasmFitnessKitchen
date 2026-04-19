@@ -30,10 +30,39 @@ class App {
         document.getElementById('ohsa-options').addEventListener('change', updateSeletedArrays);
         document.getElementById('medical-options').addEventListener('change', updateSeletedArrays);
 
+        // 回上一步 (重新設定參數)
+        const editBtn = document.getElementById('edit-config-btn');
+        if (editBtn) {
+            editBtn.addEventListener('click', () => {
+                document.querySelector('.config-section').style.display = 'block';
+                document.getElementById('workspace-area').classList.add('hidden');
+            });
+        }
+
         // 開始點菜
         document.getElementById('start-order-btn').addEventListener('click', () => {
             if (!this.state.selectedPhase) return this.showToast('請先選擇一個 OPT 階段', 'error');
             this.handlePhaseChange();
+            
+            // 寫入摘要資訊
+            document.getElementById('summary-phase').innerText = this.getPhaseFullLabel(parseInt(this.state.selectedPhase));
+            const combined = [...this.state.selectedOhsa, ...this.state.selectedDiseases].filter(Boolean);
+            document.getElementById('summary-ohsa-disease').innerText = combined.length ? combined.join('、') : '無';
+            
+            let overactive = new Set();
+            let underactive = new Set();
+            this.state.selectedOhsa.forEach(rule => {
+                const logic = this.state.ohsa.find(o => o['觀察現象'] === rule);
+                if (logic) {
+                    logic['過度活躍肌肉'].split(',').map(m=>m.trim()).filter(Boolean).forEach(m => overactive.add(m));
+                    logic['活動不足肌肉'].split(',').map(m=>m.trim()).filter(Boolean).forEach(m => underactive.add(m));
+                }
+            });
+            document.getElementById('summary-over').innerText = overactive.size ? Array.from(overactive).join('、') : '無';
+            document.getElementById('summary-under').innerText = underactive.size ? Array.from(underactive).join('、') : '無';
+
+            // 切換畫面
+            document.querySelector('.config-section').style.display = 'none';
             document.getElementById('workspace-area').classList.remove('hidden');
             // Hide menu output
             document.getElementById('menu-output-area').classList.add('hidden');

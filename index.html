@@ -81,6 +81,16 @@
 
         <!-- 雙側工作區 -->
         <section class="workspace hidden" id="workspace-area">
+            <!-- 參數摘要橫幅 -->
+            <div id="config-summary-area" class="config-summary-bar">
+                <button id="edit-config-btn" class="btn btn-sm btn-outline"><i class="fa-solid fa-arrow-left"></i> 回上一步</button>
+                <div class="summary-content">
+                    <div class="summary-line"><strong>OPT 階段：</strong> <span id="summary-phase"></span></div>
+                    <div class="summary-line"><strong>疾病與現象：</strong> <span id="summary-ohsa-disease">無</span></div>
+                    <div class="summary-line muscle-status"><span class="highlight-over">需放鬆(緊繃)：</span><span id="summary-over">無</span> <span class="highlight-under" style="margin-left:12px;">需強化(無力)：</span><span id="summary-under">無</span></div>
+                </div>
+            </div>
+
             <!-- 左側：動作庫 -->
             <aside class="exercise-pool">
                 <h2><i class="fa-solid fa-basket-shopping"></i> 食材挑選 <small style="font-size:13px; font-weight:normal; color:#666;">(動作庫清單)</small></h2>

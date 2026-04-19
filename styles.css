@@ -166,23 +166,46 @@ body { font-family: "Inter", "Noto Sans TC", sans-serif; background-color: var(-
 }
 
 /* --- 右側 Drop Zones --- */
-.menu-container { display: flex; flex-direction: column; gap: 12px; }
-.drop-zone-wrapper { border: 2px dashed #ddd; border-radius: var(--radius-md); background: #fafafa; padding: 12px; transition: all 0.2s; }
+.menu-container { display: flex; flex-direction: column; gap: 10px; }
+.drop-zone-wrapper { border: 2px dashed #ddd; border-radius: var(--radius-md); background: #fafafa; padding: 10px; transition: all 0.2s; }
 .drop-zone-wrapper.drag-over { border-color: var(--primary-color); background: rgba(106, 156, 120, 0.05); }
-.drop-header { font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
+.drop-header { font-weight: 600; margin-bottom: 6px; color: var(--text-main); font-size: 14px; }
 .drop-header small { color: var(--text-muted); font-weight: normal; }
 
-.drop-zone { min-height: 50px; border-radius: 6px; display: flex; flex-direction: column; gap: 8px; }
-/* 堆疊卡片間距已在.drop-zone定義 `gap: 8px` */
-.drop-zone .exercise-card { border-left-color: var(--secondary-color); cursor: default; }
-.drop-zone .add-to-menu-btn { display: none; }
-.remove-btn { background: #ffeded; color: var(--danger-color); border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 12px; position: absolute; top: 8px; right: 8px; }
-.remove-btn:hover { background: var(--danger-color); color: white; }
+.drop-zone { min-height: 20px; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; }
 
-/* 動作變量顯示區 */
-.exercise-variables { margin-top: 8px; background: var(--gradient-warm); padding: 8px; border-radius: 6px; font-size: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; color: #444; }
+/* 堆疊卡片精簡模式 (在右側選單中) */
+.workout-menu .exercise-card {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    margin-bottom: 2px;
+    border-left-color: var(--secondary-color);
+    cursor: default;
+}
+.workout-menu .exercise-card .card-title { font-size: 13px; margin-bottom: 0; }
+.workout-menu .exercise-card .card-desc { display: none; } /* 右側隱藏詳細目標肌群省空間 */
+.workout-menu .exercise-card .add-to-menu-btn { display: none; }
+.workout-menu .exercise-card .remove-btn { position: static; padding: 4px 8px; font-size: 12px; }
+
+/* 動作變量顯示區 (右側) */
+.workout-menu .exercise-variables { 
+    width: 100%; 
+    font-size: 11px; 
+    margin-top: 4px; 
+    padding: 4px 2px 0 2px;
+    border-top: 1px dashed #ccc; 
+    background: transparent; 
+    display: flex; 
+    justify-content: flex-start;
+    gap: 12px;
+    color: #555; 
+    border-radius: 0;
+}
 .var-item strong { color: var(--primary-dark); }
-.var-notes { grid-column: 1 / -1; margin-top: 4px; font-style: italic; color: var(--accent-color); }
+.var-notes { display: none; }
 
 /* 超級組雙格模式 */
 .resistance-container.superset { display: flex; flex-direction: column; gap: 12px; }
@@ -194,6 +217,20 @@ body { font-family: "Inter", "Noto Sans TC", sans-serif; background-color: var(-
 
 /* ----- Modal ----- */
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+/* 參數摘要列 */
+.config-summary-bar { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: 16px; background: #fffdf7; border-left: 4px solid var(--secondary-color); padding: 12px 16px; border-radius: 8px; box-shadow: var(--shadow-sm); margin-bottom: -10px; }
+.config-summary-bar .summary-content { flex: 1; font-size: 13px; color: #444; display: flex; flex-direction: column; gap: 4px; }
+.config-summary-bar .summary-line strong { color: var(--primary-dark); }
+.config-summary-bar .highlight-over { color: #d32f2f; font-weight: bold; }
+.config-summary-bar .highlight-under { color: #1976d2; font-weight: bold; }
+
+@media (max-width: 900px) {
+    .workspace { grid-template-columns: 1fr; }
+    .config-summary-bar { flex-direction: column; }
+}
+
+/* --- 左側動作庫 --- */
+.exercise-pool { background: #fff; padding: 20px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); position: sticky; top: 80px; height: calc(100vh - 140px); overflow-y: auto; }
 .modal-content { background: var(--box-bg); width: 90%; max-width: 600px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto; }
 .modal-content.modal-lg { max-width: 800px; }
 .modal-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }

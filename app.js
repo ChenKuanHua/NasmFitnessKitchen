@@ -706,7 +706,6 @@ class App {
         document.getElementById('phase-select').value = "";
         document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
         document.getElementById('workspace-area').classList.add('hidden');
-        document.getElementById('history-btn').classList.add('hidden');
         this.clearAllDropZones();
     }
 

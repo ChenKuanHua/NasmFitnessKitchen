@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>老派健身食堂 (Old-School Fitness Kitchen)</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="logo">
+            <i class="fa-solid fa-utensils"></i> 老派健身食堂 <small style="font-size: 12px; font-weight: normal; margin-left: 6px;">(Old-School Fitness Kitchen)</small>
+        </div>
+        <div class="auth-section">
+             <div id="user-info" class="hidden">
+                 <span id="user-greeting" class="hidden-mobile"></span>
+                 <button id="history-btn" class="btn btn-outline"><i class="fa-solid fa-clock-rotate-left"></i> 歷史點單</button>
+                 <button id="admin-add-btn" class="btn btn-accent hidden"><i class="fa-solid fa-plus"></i> 新增食材</button>
+                 <button id="logout-btn" class="btn btn-outline" title="登出"><i class="fa-solid fa-arrow-right-from-bracket"></i> <span class="hidden-mobile">登出</span></button>
+             </div>
+             <button id="login-btn" class="btn btn-primary"><i class="fa-brands fa-google"></i> Google 登入</button>
+        </div>
+    </header>
+
+    <main class="app-main relative-container">
+        <!-- 未登入遮罩層 -->
+        <div id="login-overlay" class="overlay-lock">
+            <div class="lock-message">
+                <i class="fa-solid fa-lock" style="font-size: 32px; margin-bottom:10px;"></i>
+                <h2>請先登入後，再開始點菜</h2>
+            </div>
+        </div>
+
+        <!-- 步驟1：個人參數輸入區 -->
+        <section class="config-section">
+            <div class="config-card">
+                <h3><i class="fa-solid fa-person-walking"></i> OHSA 評估現象</h3>
+                <div class="checkbox-group" id="ohsa-options">
+                    <!-- 動態生成或靜態皆可，維持現狀 -->
+                    <label><input type="checkbox" value="腳尖外轉"> 腳尖外轉</label>
+                    <label><input type="checkbox" value="膝蓋內夾"> 膝蓋內夾</label>
+                    <label><input type="checkbox" value="軀幹過度前傾"> 軀幹過度前傾</label>
+                    <label><input type="checkbox" value="下背凹陷"> 下背凹陷</label>
+                    <label><input type="checkbox" value="手臂前掉"> 手臂前掉</label>
+                </div>
+            </div>
+            <div class="config-card">
+                <h3><i class="fa-solid fa-notes-medical"></i> 慢性病勾選</h3>
+                <div class="checkbox-group" id="medical-options">
+                    <label><input type="checkbox" value="高血壓"> 高血壓</label>
+                    <label><input type="checkbox" value="骨質疏鬆"> 骨質疏鬆</label>
+                    <label><input type="checkbox" value="關節炎"> 關節炎</label>
+                    <label><input type="checkbox" value="糖尿病"> 糖尿病</label>
+                </div>
+            </div>
+            <div class="config-card">
+                <h3><i class="fa-solid fa-layer-group"></i> OPT 階段選擇</h3>
+                <select id="phase-select" class="form-control">
+                    <option value="" disabled selected>請選擇一個 OPT 階段...</option>
+                    <option value="1">Phase 1: 穩定耐力</option>
+                    <option value="2">Phase 2: 力量耐力 (強制超級組)</option>
+                    <option value="3">Phase 3: 增肌 (肌肥大)</option>
+                    <option value="4">Phase 4: 最大力量</option>
+                    <option value="5">Phase 5: 爆發力 (強制超級組)</option>
+                </select>
+                <div id="phase-tip" class="phase-tip mt-2 hidden"></div>
+            </div>
+            <div class="start-btn-container">
+                <button id="start-order-btn" class="btn btn-primary btn-large w-100" style="padding: 14px; font-size: 16px;">
+                    <i class="fa-solid fa-bell-concierge"></i> 開始點菜
+                </button>
+            </div>
+        </section>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="hidden overlay-lock" style="z-index: 2000;">
+            <div class="spinner"></div>
+            <p style="background: white; padding: 10px 20px; border-radius: 8px;">正在同步廚房資料庫...</p>
+        </div>
+
+        <!-- 雙側工作區 -->
+        <section class="workspace hidden" id="workspace-area">
+            <!-- 左側：動作庫 -->
+            <aside class="exercise-pool">
+                <h2><i class="fa-solid fa-basket-shopping"></i> 食材挑選 <small style="font-size:13px; font-weight:normal; color:#666;">(動作庫清單)</small></h2>
+                <div class="filters-status">
+                     <p id="pool-status-text" class="filter-tip">請先於上方選擇 OPT 階段以載入食材。</p>
+                </div>
+                <!-- 手機版提示 -->
+                <div class="mobile-tip hidden-desktop">您可以點擊動作旁的「+」按鈕加入右側菜單</div>
+                <div class="desktop-tip hidden-mobile">您可以將動作拖曳到右側的對應元素區塊 (支援加入多筆)</div>
+                <div id="accordion-container" class="accordion">
+                    <!-- 動態渲染雙層折疊選單與動作卡片 -->
+                </div>
+            </aside>
+
+            <!-- 右側：訓練菜單 (Sticky Layout) -->
+            <section class="workout-menu sticky-menu">
+                <div class="menu-header">
+                    <h2><i class="fa-solid fa-clipboard-list"></i> 今日菜色 <small style="font-size:13px; font-weight:normal; color:#666;">(今天就這樣練!)</small></h2>
+                    <button class="btn btn-sm btn-outline danger" id="clear-menu-btn"><i class="fa-solid fa-trash-can"></i> 清空</button>
+                </div>
+                
+                <div class="menu-container" id="menu-container">
+                    <div class="drop-zone-wrapper">
+                        <div class="drop-header">1. 暖身 <small>(柔韌性)</small></div>
+                        <div class="drop-zone" data-element="1.暖身"></div>
+                    </div>
+                    <div class="drop-zone-wrapper">
+                        <div class="drop-header">2. 核心</div>
+                        <div class="drop-zone" data-element="2.核心"></div>
+                    </div>
+                    <div class="drop-zone-wrapper">
+                        <div class="drop-header">3. 平衡</div>
+                        <div class="drop-zone" data-element="3.平衡"></div>
+                    </div>
+                    <div class="drop-zone-wrapper">
+                        <div class="drop-header">4. 增強式 <small>(視情況省略)</small></div>
+                        <div class="drop-zone" data-element="4.增強式"></div>
+                    </div>
+                    <div class="drop-zone-wrapper">
+                        <div class="drop-header">5. SAQ <small>(視情況省略)</small></div>
+                        <div class="drop-zone" data-element="5.SAQ"></div>
+                    </div>
+                    
+                    <div class="drop-zone-wrapper resistance-wrapper">
+                        <div class="drop-header">6. 阻力訓練 <span id="superset-badge" class="badge hidden">超級組模式</span></div>
+                        <div id="dz-resistance-container" class="resistance-container">
+                            <!-- 單格模式 -->
+                            <div class="drop-zone single-res-zone" data-element="6.阻力"></div>
+                            <!-- 雙格超級組模式將由 JS 動態替換這裡的內容，且可無限延伸 -->
+                        </div>
+                    </div>
+
+                    <div class="drop-zone-wrapper">
+                        <div class="drop-header">7. 緩和 <small>(冷身)</small></div>
+                        <div class="drop-zone" data-element="7.緩和"></div>
+                    </div>
+                </div>
+
+                <!-- 確認點菜與複製匯出區 -->
+                <div class="submit-menu-section mt-2" style="border-top: 1px solid #eee; padding-top: 16px;">
+                    <button id="confirm-order-btn" class="btn btn-primary w-100" style="width: 100%; justify-content: center;"><i class="fa-solid fa-check"></i> 確認點菜 (產生菜色)</button>
+                    <div id="menu-output-area" class="hidden mt-2">
+                         <textarea id="menu-text-output" rows="6" class="form-control" readonly style="font-size: 13px; line-height: 1.4; background: #fafafa;"></textarea>
+                         <div style="display: flex; gap: 8px; margin-top: 8px;">
+                             <button id="copy-menu-btn" class="btn btn-outline" style="flex: 1; justify-content: center;"><i class="fa-solid fa-copy"></i> 複製文字分享</button>
+                             <button id="save-menu-btn" class="btn btn-accent" style="flex: 1; justify-content: center;"><i class="fa-solid fa-cloud-arrow-up"></i> 儲存歷史紀錄</button>
+                         </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <!-- Modal (Admin Add Exercise) -->
+    <div id="admin-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>添增新食材 (動作) 至資料庫</h2>
+                <button class="close-btn" id="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 原有表單，包含目標肌群改版 -->
+                <form id="add-exercise-form">
+                    <div class="form-group">
+                        <label>動作名稱 *</label>
+                        <input type="text" id="add-name" required class="form-control" placeholder="例：啞鈴酒杯深蹲">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>訓練元素 *</label>
+                            <select id="add-element" required class="form-control">
+                                <option value="" disabled selected>選擇元素</option>
+                                <option value="1.暖身/7.緩和">1.暖身/7.緩和</option>
+                                <option value="1.暖身">1.暖身 (獨立)</option>
+                                <option value="2.核心">2.核心</option>
+                                <option value="3.平衡">3.平衡</option>
+                                <option value="4.增強式">4.增強式</option>
+                                <option value="5.SAQ">5.SAQ</option>
+                                <option value="6.阻力">6.阻力</option>
+                                <option value="7.緩和">7.緩和 (獨立)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>適用階段 (1~5) *</label>
+                            <div class="checkbox-group" id="add-phases">
+                                <label><input type="checkbox" name="phase" value="1"> 1</label>
+                                <label><input type="checkbox" name="phase" value="2"> 2</label>
+                                <label><input type="checkbox" name="phase" value="3"> 3</label>
+                                <label><input type="checkbox" name="phase" value="4"> 4</label>
+                                <label><input type="checkbox" name="phase" value="5"> 5</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>阻力模式 (僅阻力需要)</label>
+                            <select id="add-pattern" class="form-control" disabled>
+                                <option value="N/A">N/A</option>
+                                <option value="蹲">蹲</option>
+                                <option value="髖鉸鏈">髖鉸鏈</option>
+                                <option value="推">推</option>
+                                <option value="拉">拉</option>
+                                <option value="舉">舉</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>動作形式 *</label>
+                            <select id="add-modality" required class="form-control">
+                                <option value="" disabled selected>選擇形式</option>
+                                <option value="放鬆">放鬆</option>
+                                <option value="靜態伸展">靜態伸展</option>
+                                <option value="主動伸展">主動伸展</option>
+                                <option value="動態伸展">動態伸展</option>
+                                <option value="穩定">穩定</option>
+                                <option value="力量">力量</option>
+                                <option value="爆發">爆發</option>
+                                <option value="不穩定">不穩定</option>
+                                <option value="敏捷">敏捷</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>選擇目標肌群 * (點擊切換，深色表示選取)</label>
+                        <div class="muscle-tags" id="add-muscles"></div>
+                        <p class="form-text">只能從 OHSA 表出現的肌群中挑選，防資料不一致。</p>
+                   </div>
+                   <div class="form-group">
+                        <label>選填：疾病禁忌標籤 (不能做的疾病)</label>
+                        <div class="checkbox-group" id="add-tags">
+                            <label><input type="checkbox" value="高血壓"> 高血壓</label>
+                            <label><input type="checkbox" value="骨鬆"> 骨鬆</label>
+                            <label><input type="checkbox" value="關節炎"> 關節炎</label>
+                            <label><input type="checkbox" value="糖尿病"> 糖尿病</label>
+                        </div>
+                   </div>
+                    <div class="form-group">
+                        <label>注意事項</label>
+                        <input type="text" id="add-notes" class="form-control" placeholder="例：無">
+                    </div>
+                    <div class="form-actions">
+                        <div class="preview-id">自動 ID 推算: <strong id="preview-id-text">--</strong></div>
+                        <button type="submit" class="btn btn-primary" id="submit-exercise-btn">寫入 Google Sheet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal (History) -->
+    <div id="history-modal" class="modal hidden">
+        <div class="modal-content modal-lg" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-clock-rotate-left"></i> 食堂歷史點單紀錄</h2>
+                <button class="close-btn" id="close-history-btn">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <!-- 針對歷史記錄清單 -->
+                <div id="history-list-container" class="history-list"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="config.js"></script>
+    <script src="api.js"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

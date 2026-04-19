@@ -454,8 +454,11 @@ class App {
         addedCard.appendChild(removeBtn);
 
         // Vars
-        // 使用卡片的實際來源標籤 (例如：1.暖身 - 靜態伸展) 尋找變量，若找不到則退回尋找大項目 (1.暖身)
-        let exactMatch = this.state.opt.find(o => o['OPT階段'] === this.getPhaseFullLabel(phase) && o['訓練元素'] === exData['訓練元素']);
+        // 動態偵測卡片應落入的具體子分類名稱 (例如從 '1.暖身-靜態SMR/7.緩和' 抽取出 '1.暖身-靜態SMR')
+        const actualElementParts = exData['訓練元素'].split('/').map(e => e.trim());
+        const matchedSpecificName = actualElementParts.find(p => p.includes(expectedElement) || p.startsWith(expectedElement)) || expectedElement;
+        
+        let exactMatch = this.state.opt.find(o => o['OPT階段'] === this.getPhaseFullLabel(phase) && o['訓練元素'] === matchedSpecificName);
         if (!exactMatch && addedCard.getAttribute('data-source-group')) {
              exactMatch = this.state.opt.find(o => o['OPT階段'] === this.getPhaseFullLabel(phase) && o['訓練元素'] === addedCard.getAttribute('data-source-group'));
         }

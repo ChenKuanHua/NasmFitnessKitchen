@@ -58,8 +58,10 @@ class App {
                     logic['活動不足肌肉'].split(',').map(m=>m.trim()).filter(Boolean).forEach(m => underactive.add(m));
                 }
             });
-            document.getElementById('summary-over').innerText = overactive.size ? Array.from(overactive).join('、') : '無';
-            document.getElementById('summary-under').innerText = underactive.size ? Array.from(underactive).join('、') : '無';
+            const overHTML = overactive.size ? Array.from(overactive).map(m => `<span class="m-badge over">${m}</span>`).join('') : '<span class="m-badge empty">無</span>';
+            const underHTML = underactive.size ? Array.from(underactive).map(m => `<span class="m-badge under">${m}</span>`).join('') : '<span class="m-badge empty">無</span>';
+            document.getElementById('summary-over').innerHTML = overHTML;
+            document.getElementById('summary-under').innerHTML = underHTML;
 
             // 切換畫面
             document.querySelector('.config-section').style.display = 'none';

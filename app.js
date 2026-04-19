@@ -181,11 +181,11 @@ class App {
                 for (let mod in groups[key].sub) {
                     bodyHTML += `<div style="margin: 8px 0; padding-left: 8px; border-left: 2px solid var(--border-color);">
                         <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">動作形式：${mod}</div>`;
-                    groups[key].sub[mod].forEach(ex => bodyHTML += this.createCardHTML(ex));
+                    groups[key].sub[mod].forEach(ex => bodyHTML += this.createCardHTML(ex, key));
                     bodyHTML += `</div>`;
                 }
             } else {
-                groups[key].items.forEach(ex => bodyHTML += this.createCardHTML(ex));
+                groups[key].items.forEach(ex => bodyHTML += this.createCardHTML(ex, key));
             }
             this.createAccordionItem(container, key, bodyHTML);
         });
@@ -194,10 +194,11 @@ class App {
         this.bindAddButtons();
     }
 
-    createCardHTML(ex) {
+    createCardHTML(ex, sourceGroup = '') {
         const strObj = encodeURIComponent(JSON.stringify(ex));
+        const safeId = `${ex['動作ID']}-${sourceGroup.replace(/[\.\s]/g, '')}`;
         return `
-            <div class="exercise-card" draggable="true" data-ex="${strObj}" id="card-${ex['動作ID']}">
+            <div class="exercise-card" draggable="true" data-ex="${strObj}" data-source-group="${sourceGroup}" id="card-${safeId}">
                 <div class="exercise-info">
                     <div class="card-title">
                         <span>${ex['動作名稱']}</span>
@@ -299,7 +300,8 @@ class App {
                 e.stopPropagation();
                 const card = e.currentTarget.closest('.exercise-card');
                 const exData = JSON.parse(decodeURIComponent(card.getAttribute('data-ex')));
-                this.smartAddExercise(exData);
+                const sourceGroup = card.getAttribute('data-source-group');
+                this.smartAddExercise(exData, sourceGroup);
             });
         });
     }
@@ -324,14 +326,15 @@ class App {
         });
     }
 
-    smartAddExercise(ex) {
-        const expectedElement = ex['訓練元素']; // e.g. "1.暖身/7.緩和" or "6.阻力"
+    smartAddExercise(ex, sourceGroup) {
+        // 若從特定分類點擊，以該分類作為預期的寫入屬性
+        const expectedElement = sourceGroup || ex['訓練元素']; 
         
         // Find possible zones where this exercise belongs
         let possibleZones = [];
         document.querySelectorAll('.drop-zone').forEach(z => {
             let zoneEle = z.getAttribute('data-element');
-            if (expectedElement.includes(zoneEle)) possibleZones.push(z);
+            if (expectedElement.includes(zoneEle) || expectedElement.startsWith(zoneEle)) possibleZones.push(z);
         });
         
         if (possibleZones.length === 0) return this.showToast('無法找到這個階段的適合區塊', 'error');
@@ -708,17 +711,23 @@ class App {
     }
 
     updatePoolSelection() {
-        // Collect all IDs currently in the right menu
-        const inMenuIds = new Set();
-        document.querySelectorAll('#menu-container .exercise-card').forEach(card => {
-            const data = JSON.parse(decodeURIComponent(card.getAttribute('data-ex')));
-            inMenuIds.add(data['動作ID']);
+        // Collect all IDs currently in the right menu alongside their elements
+        const inMenuMap = new Set();
+        document.querySelectorAll('#menu-container .drop-zone').forEach(zone => {
+            const expect = zone.getAttribute('data-element');
+            zone.querySelectorAll('.exercise-card').forEach(card => {
+                const data = JSON.parse(decodeURIComponent(card.getAttribute('data-ex')));
+                inMenuMap.add(`${data['動作ID']}|${expect}`);
+            });
         });
 
         // Update classes on the left side pool
         document.querySelectorAll('#accordion-container .exercise-card').forEach(card => {
             const data = JSON.parse(decodeURIComponent(card.getAttribute('data-ex')));
-            if (inMenuIds.has(data['动作ID']) || inMenuIds.has(data['動作ID'])) { // account for sim/trad
+            const sourceGroup = card.getAttribute('data-source-group') || '';
+            const matchGroup = sourceGroup.startsWith('6.阻力') ? '6.阻力' : sourceGroup;
+            
+            if (inMenuMap.has(`${data['動作ID']}|${matchGroup}`)) {
                 card.classList.add('in-menu');
             } else {
                 card.classList.remove('in-menu');

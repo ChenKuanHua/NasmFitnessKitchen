@@ -83,13 +83,26 @@
 
         <!-- 雙側工作區 -->
         <section class="workspace hidden" id="workspace-area">
-            <!-- 參數摘要橫幅 -->
+            <!-- 參數摘要橫幅 (儀表板卡片) -->
             <div id="config-summary-area" class="config-summary-bar">
-                <button id="edit-config-btn" class="btn btn-sm btn-outline"><i class="fa-solid fa-arrow-left"></i> 回上一步</button>
-                <div class="summary-content">
-                    <div class="summary-line"><strong>OPT 階段：</strong> <span id="summary-phase"></span></div>
-                    <div class="summary-line"><strong>疾病與現象：</strong> <span id="summary-ohsa-disease">無</span></div>
-                    <div class="summary-line muscle-status"><span class="highlight-over">需放鬆(緊繃)：</span><span id="summary-over">無</span> <span class="highlight-under" style="margin-left:12px;">需強化(無力)：</span><span id="summary-under">無</span></div>
+                <button id="edit-config-btn" class="btn btn-outline edit-back-btn"><i class="fa-solid fa-arrow-left"></i> 回上一步</button>
+                <div class="summary-cards">
+                    <div class="s-card">
+                        <div class="s-card-title">OPT階段設計</div>
+                        <div class="s-card-body" id="summary-phase"></div>
+                    </div>
+                    <div class="s-card">
+                        <div class="s-card-title">疾病禁忌與現象</div>
+                        <div class="s-card-body" id="summary-ohsa-disease">無</div>
+                    </div>
+                    <div class="s-card">
+                        <div class="s-card-title over">需放鬆 (緊繃)</div>
+                        <div class="s-card-body inline-badges" id="summary-over">無</div>
+                    </div>
+                    <div class="s-card">
+                        <div class="s-card-title under">需強化 (無力)</div>
+                        <div class="s-card-body inline-badges" id="summary-under">無</div>
+                    </div>
                 </div>
             </div>
 
@@ -97,7 +110,6 @@
             <aside class="exercise-pool">
                 <h2><i class="fa-solid fa-basket-shopping"></i> 食材挑選 <small style="font-size:13px; font-weight:normal; color:#666;">(動作庫清單)</small></h2>
                 <div class="filters-status">
-                     <p id="pool-status-text" class="filter-tip">請先於上方選擇 OPT 階段以載入食材。</p>
                 </div>
                 <!-- 手機版提示 -->
                 <div class="mobile-tip hidden-desktop">您可以點擊動作旁的「+」按鈕加入右側菜單</div>

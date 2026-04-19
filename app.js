@@ -16,7 +16,33 @@ class App {
             this.state.selectedPhase = e.target.value;
             // 只要選項改變就重置工作區
             document.getElementById('workspace-area').classList.add('hidden');
-            document.getElementById('phase-tip').classList.add('hidden');
+            
+            const phaseTip = document.getElementById('phase-tip');
+            const phase = parseInt(this.state.selectedPhase);
+            if (phase) {
+                // Superset pairs reset
+                const resistanceContainer = document.getElementById('dz-resistance-container');
+                resistanceContainer.innerHTML = ''; 
+                if (phase === 2 || phase === 5) {
+                    resistanceContainer.classList.add('superset');
+                    this.appendSupersetPair(resistanceContainer, phase);
+                } else {
+                    resistanceContainer.classList.remove('superset');
+                    resistanceContainer.innerHTML = `<div class="drop-zone" data-element="6.阻力"></div>`;
+                }
+
+                const phaseDesc = {
+                    1: "<strong>【此階段的訓練重點】</strong><br>調整動力學鏈恢復基本運動模式，增加協調性，核心肌肉組織活化，脊柱和骨盆小肌肉對齊。在不穩定但可控的環境訓練，逐漸過渡到自由重量或站立訓練。",
+                    2: "<strong>【此階段的訓練重點】</strong><br>此階段為由穩定進階到力量之間的橋梁。<br>請評估後再開始此階段。<br>可改善肌肉力量、預防II糖尿病、改善胰島素敏感性、改善骨密度、增加新陳代謝、降低血壓和體脂<br><br>建議進行 2-6 周。",
+                    3: "<strong>【此階段的訓練重點】</strong><br>適應最大肌肉生長，高水平的訓練總量和強度迫使肌肉整理增加<br><br>建議進行 2-6 周。",
+                    4: "<strong>【此階段的訓練重點】</strong><br>著重於增加重量和組數、提高對身體施加的負荷、改善肌節的募集和生產率<br><br>適合具備良好運動基礎、長期訓練、沒有嚴重關節炎發作且血壓控制非常穩定的「進階/活躍型銀髮族」，才能在教練嚴密監控下進行此階段。",
+                    5: "<strong>【此階段的訓練重點】</strong><br>提高肌肉收縮的速度、增加活化肌節的數量<br>爆發力是隨著年齡增長流失最快的能力，甚至比純肌力的流失還要快！<br>對於銀髮族來說，爆發力訓練的目的為了絆倒後的穩定身體反應。<br>只有在前四個階段打下堅實基礎的「活躍型長者」才能進行。"
+                };
+                phaseTip.innerHTML = phaseDesc[phase] || `Phase ${phase} 訓練目標`;
+                phaseTip.classList.remove('hidden');
+            } else {
+                phaseTip.classList.add('hidden');
+            }
         });
 
         const updateSeletedArrays = () => {
@@ -116,7 +142,6 @@ class App {
         
         const phaseTip = document.getElementById('phase-tip');
         phaseTip.classList.remove('hidden');
-        phaseTip.innerHTML = `準備就緒！針對 <strong>Phase ${phase}</strong> 過濾食材。`;
 
         this.renderExercisePool();
         this.rebuildResistanceZone();
@@ -172,14 +197,6 @@ class App {
     renderExercisePool() {
         const phase = this.state.selectedPhase;
         const container = document.getElementById('accordion-container');
-        const phaseDesc = {
-            1: "<strong>【此階段的訓練重點】</strong><br>調整動力學鏈恢復基本運動模式，增加協調性，核心肌肉組織活化，脊柱和骨盆小肌肉對齊。在不穩定但可控的環境訓練，逐漸過渡到自由重量或站立訓練。",
-            2: "<strong>【此階段的訓練重點】</strong><br>此階段為由穩定進階到力量之間的橋梁。<br>請評估後再開始此階段。<br>可改善肌肉力量、預防II糖尿病、改善胰島素敏感性、改善骨密度、增加新陳代謝、降低血壓和體脂<br><br>建議進行2-6周",
-            3: "<strong>【此階段的訓練重點】</strong><br>適應最大肌肉生長，高水平的訓練總量和強度迫使肌肉整理增加<br><br>建議進行 2-6 周",
-            4: "<strong>【此階段的訓練重點】</strong><br>著重於增加重量和組數、提高對身體施加的負荷、改善肌節的募集和生產率<br><br>適合具備良好運動基礎、長期訓練、沒有嚴重關節炎發作且血壓控制非常穩定的「進階/活躍型銀髮族」，才能在教練嚴密監控下進行此階段。",
-            5: "<strong>【此階段的訓練重點】</strong><br>提高肌肉收縮的速度、增加活化肌節的數量<br>爆發力是隨著年齡增長流失最快的能力，甚至比純肌力的流失還要快！<br>對於銀髮族來說，爆發力訓練的目的為了絆倒後的穩定身體反應。<br>只有在前四個階段打下堅實基礎的「活躍型長者」才能進行。"
-        };
-        document.getElementById('pool-status-text').innerHTML = phaseDesc[phase] || `顯示 Phase ${phase} 的合適動作`;
         container.innerHTML = '';
         
         const filtered = this.state.exercises.filter(ex => {

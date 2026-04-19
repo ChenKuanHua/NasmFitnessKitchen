@@ -79,7 +79,7 @@ class AuthManager {
         const overlay = document.getElementById('login-overlay');
         if (overlay) overlay.classList.add('hidden');
         
-        const role = this.isAdmin ? '系統管理員' : '一般看診者';
+        const role = this.isAdmin ? '教練主廚' : '老饕食客';
         document.getElementById('user-greeting').innerText = `嗨！${this.userData.name} (${role})`;
         
         if (this.isAdmin) {

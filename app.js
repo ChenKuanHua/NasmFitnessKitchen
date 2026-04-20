@@ -72,7 +72,8 @@ class App {
             
             // 寫入摘要資訊
             document.getElementById('summary-phase').innerText = this.getPhaseFullLabel(parseInt(this.state.selectedPhase));
-            const combined = [...this.state.selectedOhsa, ...this.state.selectedDiseases].filter(Boolean);
+            const combinedDiseases = this.state.selectedDiseases.map(d => d.split('(')[0]);
+            const combined = [...this.state.selectedOhsa, ...combinedDiseases].filter(Boolean);
             document.getElementById('summary-ohsa-disease').innerText = combined.length ? combined.join('、') : '無';
             
             let overactive = new Set();
@@ -318,9 +319,8 @@ class App {
             warningContainer.innerHTML = ''; warningContainer.classList.add('hidden');
             
             activeRules.forEach(rule => {
-                if (tagsField.includes(`[${rule['慢性病名稱']}]`) || tagsField.includes(`[骨鬆]`)) {
-                    if (rule['慢性病名稱'] === '骨質疏鬆' && !tagsField.includes('骨質疏鬆') && !tagsField.includes('骨鬆')) return;
-                    warningContainer.insertAdjacentHTML('beforeend', `<div class="medical-warning"><i class="fa-solid fa-triangle-exclamation"></i> <span><b>${rule['慢性病名稱']}禁忌：</b><br>${rule['嚴禁行為']}<br><i>建議: ${rule['修改建議']}</i></span></div>`);
+                if (tagsField.includes(rule['慢性病名稱'])) {
+                    warningContainer.insertAdjacentHTML('beforeend', `<div class="medical-warning"><i class="fa-solid fa-triangle-exclamation"></i> <span><b>${rule['慢性病名稱']}禁忌：</b><br>${rule['嚴禁行為']}<br><i>建議: ${rule['修改與建議']}</i></span></div>`);
                     warningContainer.classList.remove('hidden');
                 }
             });
@@ -728,7 +728,7 @@ class App {
             document.getElementById('add-modality').value,
             Array.from(document.querySelectorAll('input[name="phase"]:checked')).map(i => i.value).join(','),
             Array.from(document.querySelectorAll('.muscle-tag.selected')).map(t => t.innerText).join(', '),
-            Array.from(document.querySelectorAll('#add-tags input:checked')).map(i => `[${i.value}]`).join(', '),
+            document.querySelectorAll('#add-tags input:checked').length > 0 ? `[${Array.from(document.querySelectorAll('#add-tags input:checked')).map(i => i.value).join(', ')}]` : '',
             document.getElementById('add-notes').value
         ];
         

@@ -130,9 +130,42 @@ class App {
         try {
             const data = await api.fetchAllData();
             this.state = { ...this.state, ...data };
+            
+            this.renderDynamicOptions();
+            
             this.showToast('資料庫同步完成！', 'success');
         } catch (e) {
             this.showToast(`資料載入失敗: ${e.message}`, 'error');
+        }
+    }
+
+    renderDynamicOptions() {
+        if (this.state.ohsa && this.state.ohsa.length > 0) {
+            const ohsaContainer = document.getElementById('ohsa-options');
+            if (ohsaContainer) {
+                const uniqueOhsa = [...new Set(this.state.ohsa.map(o => o['觀察現象']).filter(Boolean))];
+                ohsaContainer.innerHTML = uniqueOhsa.map(rule => `<label><input type="checkbox" value="${rule}"> ${rule}</label>`).join('');
+            }
+        }
+
+        if (this.state.medical && this.state.medical.length > 0) {
+            const uniqueMedical = [...new Set(this.state.medical.map(m => m['慢性病名稱']).filter(Boolean))];
+            
+            const medicalContainer = document.getElementById('medical-options');
+            if (medicalContainer) {
+                medicalContainer.innerHTML = uniqueMedical.map(dis => {
+                    const shortName = dis.split('(')[0].trim();
+                    return `<label><input type="checkbox" value="${dis}"> ${shortName}</label>`;
+                }).join('');
+            }
+            
+            const addTagsContainer = document.getElementById('add-tags');
+            if (addTagsContainer) {
+                addTagsContainer.innerHTML = uniqueMedical.map(dis => {
+                    const shortName = dis.split('(')[0].trim();
+                    return `<label><input type="checkbox" value="${dis}"> ${shortName}</label>`;
+                }).join('');
+            }
         }
     }
 
